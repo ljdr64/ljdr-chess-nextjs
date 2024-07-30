@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Interactive ChessGame',
+  title: 'LJDR-Chess',
   description:
     'Interactive ChessGame with Next.js, TypeScript, and Tailwind CSS.',
 };

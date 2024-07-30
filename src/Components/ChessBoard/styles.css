@@ -1,0 +1,154 @@
+:root {
+  --dim-square: 64px;
+  --dim-board: calc(var(--dim-square) * 8);
+  --dim-padding: calc(var(--dim-square) / 2 + 2px);
+  --dim-board-padding: calc(var(--dim-board) + var(--dim-padding) * 2);
+}
+
+@media screen and (max-width: 532px) {
+  :root {
+    --dim-square: 62px;
+  }
+}
+
+@media screen and (max-width: 516px) {
+  :root {
+    --dim-square: 58px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  :root {
+    --dim-square: 58px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  :root {
+    --dim-square: 58px;
+  }
+}
+
+@media screen and (max-width: 484px) {
+  :root {
+    --dim-square: 56px;
+  }
+}
+
+@media screen and (max-width: 468px) {
+  :root {
+    --dim-square: 54px;
+  }
+}
+
+@media screen and (max-width: 452px) {
+  :root {
+    --dim-square: 52px;
+  }
+}
+
+@media screen and (max-width: 436px) {
+  :root {
+    --dim-square: 50px;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  :root {
+    --dim-square: 48px;
+  }
+}
+
+@media screen and (max-width: 404px) {
+  :root {
+    --dim-square: 46px;
+  }
+}
+
+@media screen and (max-width: 372px) {
+  :root {
+    --dim-square: 44px;
+  }
+}
+
+.dark-square {
+  background-color: #b58863;
+}
+
+.light-square {
+  background-color: #f0d9b5;
+}
+
+.bg-circle-in-center {
+  background-image: radial-gradient(
+    circle,
+    rgba(4, 128, 50, 0.8) 25%,
+    transparent 30%
+  );
+}
+
+.bg-circle-check {
+  background-image: radial-gradient(
+    circle,
+    rgba(210, 0, 0, 0.8) 40%,
+    rgba(210, 0, 0, 0.6) 60%,
+    transparent 100%
+  );
+}
+
+.bg-circle-take-piece {
+  background-image: radial-gradient(
+    circle,
+    transparent 75%,
+    rgb(4, 128, 50) 80%
+  );
+}
+
+.bg-circle-promotion-pawn {
+  background-image: radial-gradient(
+    circle,
+    rgba(156, 163, 175, 0.8) 50%,
+    rgba(156, 163, 175, 0.6) 65%,
+    transparent 100%
+  );
+}
+
+.dim-square,
+.dim-piece {
+  width: var(--dim-square);
+  height: var(--dim-square);
+}
+
+.dim-board {
+  width: var(--dim-board);
+  height: var(--dim-board);
+}
+
+.promote-white {
+  margin-top: calc(var(--dim-square) * 3);
+}
+
+.promote-black {
+  margin-bottom: calc(var(--dim-square) * 3);
+}
+
+.square-promote {
+  width: var(--dim-square);
+}
+
+.chessgame-padding {
+  padding: var(--dim-padding);
+}
+
+.notation-padding {
+  padding: calc(var(--dim-padding) * 1.5) var(--dim-padding)
+    calc(var(--dim-padding) * 1.5) var(--dim-padding);
+}
+
+.font-size-clock {
+  font-size: var(--dim-padding);
+}
+
+.touch-none {
+  touch-action: none;
+}
