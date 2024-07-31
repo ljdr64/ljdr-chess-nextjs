@@ -1,28 +1,21 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const useSquareSize = () => {
-  const [squareSize, setSquareSize] = useState<{
-    width: number;
-    height: number;
-  }>({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
-  });
+  const [squareSize, setSquareSize] = useState(64);
 
   useEffect(() => {
     const handleResize = () => {
-      setSquareSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      if (typeof window !== 'undefined') {
+        const size = getComputedStyle(
+          document.documentElement
+        ).getPropertyValue('--dim-square');
+        setSquareSize(parseInt(size, 10));
+      }
     };
-
-    window.addEventListener('resize', handleResize);
 
     handleResize();
 
+    window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 

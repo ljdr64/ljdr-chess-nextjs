@@ -23,7 +23,7 @@ type SquareRefs = {
 };
 
 type PieceType = 'empty' | string;
-type SquareType = string | null;
+type SquareType = string;
 
 interface Position {
   x: number;
@@ -36,14 +36,14 @@ const ChessBoard = () => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [draggingPiece, setDraggingPiece] = useState<PieceType>('empty');
-  const [currentSquare, setCurrentSquare] = useState<SquareType>(null);
-  const [dragStartSquare, setDragStartSquare] = useState<SquareType>(null);
-  const [highlightedSquare, setHighlightedSquare] = useState<SquareType>(null);
+  const [currentSquare, setCurrentSquare] = useState<SquareType>('');
+  const [dragStartSquare, setDragStartSquare] = useState<SquareType>('');
+  const [highlightedSquare, setHighlightedSquare] = useState<SquareType>('');
   const [highlightedLastMove, setHighlightedLastMove] =
-    useState<SquareType>(null);
+    useState<SquareType>('');
   const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
   const squareSize = useSquareSize();
-  let squarePieceDrop = [null, 'empty'];
+  let squarePieceDrop = ['', 'empty'];
 
   const squareRefs = useMemo<SquareRefs>(() => {
     const refs: SquareRefs = {};
@@ -83,26 +83,40 @@ const ChessBoard = () => {
 
   useEffect(() => {
     if (isDragging && !context?.isClockZero) {
-      document.addEventListener('mousemove', handleMouseMove, {
+      document.addEventListener('mousemove', handleMouseMove as EventListener, {
         passive: false,
       });
-      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('touchmove', handleTouchMove as EventListener, {
+        passive: false,
+      });
     } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener(
+        'mousemove',
+        handleMouseMove as EventListener
+      );
+      document.removeEventListener(
+        'touchmove',
+        handleTouchMove as EventListener
+      );
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener(
+        'mousemove',
+        handleMouseMove as EventListener
+      );
+      document.removeEventListener(
+        'touchmove',
+        handleTouchMove as EventListener
+      );
     };
   }, [isDragging, context?.isClockZero]);
 
   useEffect(() => {
     if (context?.isClockZero) {
       setPosition({ x: 0, y: 0 });
-      setDragStartSquare(null);
-      setHighlightedSquare(null);
+      setDragStartSquare('');
+      setHighlightedSquare('');
       setPossibleMoves([]);
     }
   }, [context?.isClockZero]);
@@ -121,8 +135,8 @@ const ChessBoard = () => {
       )
     ) {
       if (
-        (draggingPiece === 'P' && square[1] === '8') ||
-        (draggingPiece === 'p' && square[1] === '1')
+        (draggingPiece === 'P' && square?.[1] === '8') ||
+        (draggingPiece === 'p' && square?.[1] === '1')
       ) {
         context?.setPromotionModal(true);
         context?.setPromotionNotation(
@@ -138,7 +152,7 @@ const ChessBoard = () => {
         );
       } else {
         context?.setCurrentTurn(
-          context?.currentTurn === 'white' ? 'black' : 'white'
+          context.currentTurn === 'white' ? 'black' : 'white'
         );
         context?.setNotation(
           (prev) =>
@@ -155,21 +169,17 @@ const ChessBoard = () => {
         );
       }
       context?.handlePieceMove(currentSquare, square);
-      setDragStartSquare(null);
-      setHighlightedSquare(null);
+      setDragStartSquare('');
+      setHighlightedSquare('');
       setPossibleMoves([]);
     }
   };
 
   const handleMouseDown = (
-    e: React.MouseEvent<HTMLDivElement>,
+    e: MouseEvent | Touch,
     square: SquareType,
     piece: PieceType
   ): void => {
-    if (e.cancelable) {
-      e.preventDefault();
-    }
-
     if (context?.isClockZero) {
       return;
     }
@@ -197,7 +207,7 @@ const ChessBoard = () => {
         );
       } else {
         context?.setCurrentTurn(
-          context?.currentTurn === 'white' ? 'black' : 'white'
+          context.currentTurn === 'white' ? 'black' : 'white'
         );
         context?.setNotation(
           (prev) =>
@@ -214,25 +224,25 @@ const ChessBoard = () => {
         );
       }
       context?.handlePieceMove(currentSquare, square);
-      setDragStartSquare(null);
-      setHighlightedSquare(null);
+      setDragStartSquare('');
+      setHighlightedSquare('');
       setPossibleMoves([]);
       return;
     } else if (
       piece === 'empty' ||
-      (context?.currentTurn === 'white' && piece === piece.toLowerCase()) ||
-      (context?.currentTurn === 'black' && piece === piece.toUpperCase())
+      (context.currentTurn === 'white' && piece === piece.toLowerCase()) ||
+      (context.currentTurn === 'black' && piece === piece.toUpperCase())
     ) {
       setDraggingPiece('empty');
-      setDragStartSquare(null);
-      setHighlightedSquare(null);
+      setDragStartSquare('');
+      setHighlightedSquare('');
       setPossibleMoves([]);
       return;
     }
 
     if (
-      (piece === 'P' && square[1] === '8') ||
-      (piece === 'p' && square[1] === '1')
+      (piece === 'P' && square?.[1] === '8') ||
+      (piece === 'p' && square?.[1] === '1')
     ) {
       setPosition({ x: 0, y: 0 });
       setIsDragging(false);
@@ -259,11 +269,14 @@ const ChessBoard = () => {
     }
     setDraggingPiece(piece);
     setCurrentSquare(square);
-    setHighlightedSquare(null);
+    setHighlightedSquare('');
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleMouseMove = (e: MouseEvent | Touch): void => {
     const pieceArea = pieceRefs[currentSquare].current;
+    if (pieceArea === null) {
+      return;
+    }
     const piecePos = {
       posX: pieceArea.offsetLeft + squareSize / 2,
       posY: pieceArea.offsetTop + squareSize / 2,
@@ -277,15 +290,17 @@ const ChessBoard = () => {
     );
     moves.push(currentSquare);
 
-    const squareArea = {};
-    const squarePos = {};
+    const squareArea: { [key: string]: HTMLElement | null } = {};
+    const squarePos: { [key: string]: { posX: number; posY: number } } = {};
 
     for (const item of moves) {
       squareArea[item] = squareRefs[item].current;
-      squarePos[item] = {
-        posX: squareArea[item].offsetLeft,
-        posY: squareArea[item].offsetTop,
-      };
+      if (squareArea[item]) {
+        squarePos[item] = {
+          posX: squareArea[item].offsetLeft,
+          posY: squareArea[item].offsetTop,
+        };
+      }
       if (!context?.isTouchDevice) {
         if (
           e.clientX - squarePos[item].posX + window.scrollX <= squareSize - 1 &&
@@ -298,16 +313,16 @@ const ChessBoard = () => {
             item === context?.lastMove.to
           ) {
             setHighlightedLastMove(item);
-            setHighlightedSquare(null);
+            setHighlightedSquare('');
             break;
           } else {
             setHighlightedSquare(item);
-            setHighlightedLastMove(null);
+            setHighlightedLastMove('');
             break;
           }
         } else {
-          setHighlightedSquare(null);
-          setHighlightedLastMove(null);
+          setHighlightedSquare('');
+          setHighlightedLastMove('');
         }
       }
     }
@@ -326,10 +341,13 @@ const ChessBoard = () => {
 
     if (!isDragging) return;
 
-    const squareArea = {};
-    const squarePos = {};
+    const squareArea: { [key: string]: HTMLElement | null } = {};
+    const squarePos: { [key: string]: { posX: number; posY: number } } = {};
 
     const pieceArea = pieceRefs[currentSquare].current;
+    if (pieceArea === null) {
+      return;
+    }
     const piecePos = {
       posX: pieceArea.offsetLeft,
       posY: pieceArea.offsetTop,
@@ -341,10 +359,12 @@ const ChessBoard = () => {
         const rank = 8 - rowIndex;
         const square = `${file}${rank}`;
         squareArea[square] = squareRefs[square].current;
-        squarePos[square] = {
-          posX: squareArea[square].offsetLeft,
-          posY: squareArea[square].offsetTop,
-        };
+        if (squareArea[square]) {
+          squarePos[square] = {
+            posX: squareArea[square].offsetLeft,
+            posY: squareArea[square].offsetTop,
+          };
+        }
       })
     );
 
@@ -378,8 +398,8 @@ const ChessBoard = () => {
             )
           ) {
             if (
-              (draggingPiece === 'P' && squarePieceDrop[0][1] === '8') ||
-              (draggingPiece === 'p' && squarePieceDrop[0][1] === '1')
+              (draggingPiece === 'P' && squarePieceDrop[0]?.[1] === '8') ||
+              (draggingPiece === 'p' && squarePieceDrop[0]?.[1] === '1')
             ) {
               context?.setPromotionModal(true);
               context?.setPromotionNotation(
@@ -395,7 +415,7 @@ const ChessBoard = () => {
               );
             } else {
               context?.setCurrentTurn(
-                context?.currentTurn === 'white' ? 'black' : 'white'
+                context.currentTurn === 'white' ? 'black' : 'white'
               );
               context?.setNotation(
                 (prev) =>
@@ -416,12 +436,12 @@ const ChessBoard = () => {
               x: squarePos[square].posX - piecePos.posX,
               y: squarePos[square].posY - piecePos.posY,
             });
-            setDragStartSquare(null);
-            setHighlightedSquare(null);
+            setDragStartSquare('');
+            setHighlightedSquare('');
             setPossibleMoves([]);
           } else {
             setPosition({ x: 0, y: 0 });
-            squarePieceDrop = [null, 'empty'];
+            squarePieceDrop = ['', 'empty'];
           }
         }
       });
@@ -429,23 +449,27 @@ const ChessBoard = () => {
 
     if (!positionFound) {
       setPosition({ x: 0, y: 0 });
-      squarePieceDrop = [null, 'empty'];
+      squarePieceDrop = ['', 'empty'];
     }
 
     setIsDragging(false);
   };
 
-  const handleStart = (e, square, piece) => {
-    const event = e.type === 'mousedown' ? e : e.touches[0];
+  const handleTouchStart = (
+    e: TouchEvent,
+    square: SquareType,
+    piece: PieceType
+  ): void => {
+    const event = e.touches[0];
     handleMouseDown(event, square, piece);
   };
 
-  const handleMove = (e) => {
-    const event = e.type === 'mousedown' ? e : e.touches[0];
+  const handleTouchMove = (e: TouchEvent): void => {
+    const event = e.touches[0];
     handleMouseMove(event);
   };
 
-  const handleEnd = () => {
+  const handleTouchEnd = (): void => {
     handleMouseUp();
   };
 
@@ -481,7 +505,7 @@ const ChessBoard = () => {
     }
 
     if (isHighlighted || isDragStartSquare) {
-      return `${baseClass} bg-green-700`;
+      return `bg-green-700`;
     }
 
     if (isPossibleMove) {
@@ -546,7 +570,7 @@ const ChessBoard = () => {
                 ref={squareRefs[square]}
                 className={`dim-square flex items-center justify-center cursor-pointer ${squareClass}`}
                 onMouseDown={(e) => handleMouseDown(e, square, piece)}
-                onTouchStart={(e) => handleStart(e, square, piece)}
+                onTouchStart={(e) => handleTouchStart(e, square, piece)}
                 onClick={() => handleMouseClick(square)}
               >
                 {currentSquare === square ? (
@@ -568,7 +592,7 @@ const ChessBoard = () => {
                         transform: `translate(${position.x}px, ${position.y}px)`,
                       }}
                       onMouseUp={handleMouseUp}
-                      onTouchEnd={handleEnd}
+                      onTouchEnd={handleTouchEnd}
                     >
                       <div id={square} className="h-full pointer-events-none">
                         {piece !== 'empty' && <Piece piece={piece} />}

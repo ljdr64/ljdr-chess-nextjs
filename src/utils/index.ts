@@ -66,7 +66,7 @@ export const board2DArrayToFEN = (
     );
   });
 
-  const fenTurn: string = currentTurn === 'white' ? 'w' : 'b';
+  const fenTurn: string = currentTurn === 'white' ? 'b' : 'w';
 
   return (
     `${fenRows.join('/')}` +
@@ -89,8 +89,10 @@ export const updateBoard2DArrayPosition = (
   fromPosition: string,
   toPosition: string
 ): [Array<Array<string>>, string] => {
-  const [fromFile, fromRank] = fromPosition;
-  const [toFile, toRank] = toPosition;
+  const fromFile = fromPosition[0];
+  const fromRank = fromPosition[1];
+  const toFile = toPosition[0];
+  const toRank = toPosition[1];
   const piece: string =
     board2DArray[8 - Number(fromRank)][
       fromFile.charCodeAt(0) - 'a'.charCodeAt(0)
@@ -105,9 +107,9 @@ export const updateBoard2DArrayPosition = (
     fromRank === '5' &&
     toRank === '6' &&
     Math.abs(fromFile.charCodeAt(0) - toFile.charCodeAt(0)) === 1 &&
-    newBoard2DArray[3][toFile.charCodeAt(0) - 'a'.charCodeAt(0)] === 'empty'
+    newBoard2DArray[2][toFile.charCodeAt(0) - 'a'.charCodeAt(0)] === 'empty'
   ) {
-    newBoard2DArray[4][toFile.charCodeAt(0) - 'a'.charCodeAt(0)] = 'empty';
+    newBoard2DArray[3][toFile.charCodeAt(0) - 'a'.charCodeAt(0)] = 'empty';
   }
 
   if (
@@ -166,7 +168,8 @@ export const promotionPieceInBoard2DArray = (
   fromPosition: string,
   piecePromote: string
 ): Array<Array<string>> => {
-  const [fromFile, fromRank] = fromPosition;
+  const fromFile = fromPosition[0];
+  const fromRank = fromPosition[1];
   let newBoard2DArray: Array<Array<string>> = board2DArray.map((row) => [
     ...row,
   ]);
