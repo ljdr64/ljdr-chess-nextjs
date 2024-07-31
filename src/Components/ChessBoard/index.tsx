@@ -7,15 +7,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { Chess } from 'chess.js';
 import { ChessBoardContext, ChessBoardContextType } from '../../Context';
 import { useSquareSize } from '../../Hooks/useSquareSize';
 import Piece from '../Piece';
 import PromotionPawn from '../PromotionPawn';
-import { isMoveLegal } from '../../ChessMoves';
-import { formatNotation } from '../../utils/formatNotation';
-import { calculatePossibleMoves } from '../../utils/calculatePossibleMoves';
-import { sameType } from '../../utils/sameType';
-import { isBlackKingInCheck, isWhiteKingInCheck } from '../../KingInCheck';
 import './styles.css';
 
 type SquareRefs = {
@@ -32,6 +28,10 @@ interface Position {
 
 const ChessBoard = () => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
+  const [game, setGame] = useState(new Chess());
+  const [fen, setFen] = useState(game.fen());
+  const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
+  const [previousPawnPosition, setPreviousPawnPosition] = useState<string>('');
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
@@ -41,7 +41,6 @@ const ChessBoard = () => {
   const [highlightedSquare, setHighlightedSquare] = useState<SquareType>('');
   const [highlightedLastMove, setHighlightedLastMove] =
     useState<SquareType>('');
-  const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
   const squareSize = useSquareSize();
   let squarePieceDrop = ['', 'empty'];
 
@@ -124,51 +123,34 @@ const ChessBoard = () => {
   const handleMouseClick = (square: SquareType): void => {
     if (draggingPiece === 'empty' || context?.isClockZero) return;
 
-    if (
-      square !== currentSquare &&
-      isMoveLegal(
-        draggingPiece,
-        square,
-        currentSquare,
-        context?.board2DArray,
-        context?.fen
-      )
-    ) {
+    const moves: string[] = game
+      .moves({ verbose: true })
+      .filter((move) => move.from === currentSquare)
+      .map((move) => move.to);
+
+    if (moves.includes(square)) {
       if (
         (draggingPiece === 'P' && square?.[1] === '8') ||
         (draggingPiece === 'p' && square?.[1] === '1')
       ) {
+        setPreviousPawnPosition(currentSquare);
         context?.setPromotionModal(true);
-        context?.setPromotionNotation(
-          formatNotation(
-            draggingPiece,
-            currentSquare,
-            'empty',
-            square,
-            context?.fullmoveNumber,
-            context?.board2DArray,
-            context?.fen
-          )
-        );
       } else {
-        context?.setCurrentTurn(
-          context.currentTurn === 'white' ? 'black' : 'white'
-        );
-        context?.setNotation(
-          (prev) =>
-            prev +
-            formatNotation(
-              draggingPiece,
-              currentSquare,
-              'empty',
-              square,
-              context?.fullmoveNumber,
-              context?.board2DArray,
-              context?.fen
-            )
-        );
+        game.move({ from: currentSquare, to: square });
+        context?.setLastMove({ from: currentSquare, to: square });
+        context?.setCurrentTurn(game.turn() === 'w' ? 'white' : 'black');
+        context?.setNotation(game.pgn());
+        if (game.isCheckmate()) {
+          if (game.turn() === 'b') {
+            context?.setChessResult('1-0');
+          } else if (game.turn() === 'w') {
+            context?.setChessResult('0-1');
+          }
+        } else if (game.isStalemate() || game.isDraw()) {
+          context?.setChessResult('1/2-1/2');
+        }
+        context?.setFEN(game.fen());
       }
-      context?.handlePieceMove(currentSquare, square);
       setDragStartSquare('');
       setHighlightedSquare('');
       setPossibleMoves([]);
@@ -193,37 +175,24 @@ const ChessBoard = () => {
         (draggingPiece === 'P' && square?.[1] === '8') ||
         (draggingPiece === 'p' && square?.[1] === '1')
       ) {
+        setPreviousPawnPosition(currentSquare);
         context?.setPromotionModal(true);
-        context?.setPromotionNotation(
-          formatNotation(
-            draggingPiece,
-            currentSquare,
-            piece,
-            square,
-            context?.fullmoveNumber,
-            context?.board2DArray,
-            context?.fen
-          )
-        );
       } else {
-        context?.setCurrentTurn(
-          context.currentTurn === 'white' ? 'black' : 'white'
-        );
-        context?.setNotation(
-          (prev) =>
-            prev +
-            formatNotation(
-              draggingPiece,
-              currentSquare,
-              piece,
-              square,
-              context?.fullmoveNumber,
-              context?.board2DArray,
-              context?.fen
-            )
-        );
+        game.move({ from: currentSquare, to: square });
+        context?.setLastMove({ from: currentSquare, to: square });
+        context?.setCurrentTurn(game.turn() === 'w' ? 'white' : 'black');
+        context?.setNotation(game.pgn());
+        if (game.isCheckmate()) {
+          if (game.turn() === 'b') {
+            context?.setChessResult('1-0');
+          } else if (game.turn() === 'w') {
+            context?.setChessResult('0-1');
+          }
+        } else if (game.isStalemate() || game.isDraw()) {
+          context?.setChessResult('1/2-1/2');
+        }
+        context?.setFEN(game.fen());
       }
-      context?.handlePieceMove(currentSquare, square);
       setDragStartSquare('');
       setHighlightedSquare('');
       setPossibleMoves([]);
@@ -250,12 +219,12 @@ const ChessBoard = () => {
     }
 
     setDragStartSquare(square);
-    const moves = calculatePossibleMoves(
-      piece,
-      square,
-      context?.board2DArray,
-      context?.fen
-    );
+
+    const moves: string[] = game
+      .moves({ verbose: true })
+      .filter((move) => move.from === square)
+      .map((move) => move.to);
+
     setPossibleMoves(moves);
 
     const pieceMove = document.getElementById(square);
@@ -282,13 +251,10 @@ const ChessBoard = () => {
       posY: pieceArea.offsetTop + squareSize / 2,
     };
 
-    const moves = calculatePossibleMoves(
-      draggingPiece,
-      currentSquare,
-      context?.board2DArray,
-      context?.fen
-    );
-    moves.push(currentSquare);
+    const moves: string[] = game
+      .moves({ verbose: true })
+      .filter((move) => move.from === currentSquare)
+      .map((move) => move.to);
 
     const squareArea: { [key: string]: HTMLElement | null } = {};
     const squarePos: { [key: string]: { posX: number; posY: number } } = {};
@@ -353,6 +319,11 @@ const ChessBoard = () => {
       posY: pieceArea.offsetTop,
     };
 
+    const moves: string[] = game
+      .moves({ verbose: true })
+      .filter((move) => move.from === currentSquare)
+      .map((move) => move.to);
+
     context?.board2DArray.forEach((row, rowIndex) =>
       row.forEach((piece, colIndex) => {
         const file = String.fromCharCode('a'.charCodeAt(0) + colIndex);
@@ -387,51 +358,32 @@ const ChessBoard = () => {
         ) {
           squarePieceDrop = [square, piece];
           positionFound = true;
-          if (
-            !sameType(draggingPiece, squarePieceDrop[1]) &&
-            isMoveLegal(
-              draggingPiece,
-              squarePieceDrop[0],
-              currentSquare,
-              context?.board2DArray,
-              context?.fen
-            )
-          ) {
+          if (moves.includes(square)) {
             if (
               (draggingPiece === 'P' && squarePieceDrop[0]?.[1] === '8') ||
               (draggingPiece === 'p' && squarePieceDrop[0]?.[1] === '1')
             ) {
+              setPreviousPawnPosition(currentSquare);
               context?.setPromotionModal(true);
-              context?.setPromotionNotation(
-                formatNotation(
-                  draggingPiece,
-                  currentSquare,
-                  piece,
-                  squarePieceDrop[0],
-                  context?.fullmoveNumber,
-                  context?.board2DArray,
-                  context?.fen
-                )
-              );
             } else {
-              context?.setCurrentTurn(
-                context.currentTurn === 'white' ? 'black' : 'white'
-              );
-              context?.setNotation(
-                (prev) =>
-                  prev +
-                  formatNotation(
-                    draggingPiece,
-                    currentSquare,
-                    piece,
-                    squarePieceDrop[0],
-                    context?.fullmoveNumber,
-                    context?.board2DArray,
-                    context?.fen
-                  )
-              );
+              game.move({ from: currentSquare, to: squarePieceDrop[0] });
+              context?.setLastMove({
+                from: currentSquare,
+                to: squarePieceDrop[0],
+              });
+              context?.setCurrentTurn(game.turn() === 'w' ? 'white' : 'black');
+              context?.setNotation(game.pgn());
+              if (game.isCheckmate()) {
+                if (game.turn() === 'b') {
+                  context?.setChessResult('1-0');
+                } else if (game.turn() === 'w') {
+                  context?.setChessResult('0-1');
+                }
+              } else if (game.isStalemate() || game.isDraw()) {
+                context?.setChessResult('1/2-1/2');
+              }
+              context?.setFEN(game.fen());
             }
-            context?.handlePieceMove(currentSquare, squarePieceDrop[0]);
             setPosition({
               x: squarePos[square].posX - piecePos.posX,
               y: squarePos[square].posY - piecePos.posY,
@@ -537,12 +489,12 @@ const ChessBoard = () => {
             const isPossibleTake = isPossibleMove && piece !== 'empty';
             const isWhiteInCheck =
               piece === 'K' &&
-              isWhiteKingInCheck(context?.board2DArray) &&
-              !context?.promotionModal;
+              (game.isCheck() || game.isCheckmate()) &&
+              context.currentTurn === 'white';
             const isBlackInCheck =
               piece === 'k' &&
-              isBlackKingInCheck(context?.board2DArray) &&
-              !context?.promotionModal;
+              (game.isCheck() || game.isCheckmate()) &&
+              context.currentTurn === 'black';
             const isPromotedWhitePawn = piece === 'P' && rank === 8;
             const isPromotedBlackPawn = piece === 'p' && rank === 1;
             const isDragStartSquare = dragStartSquare === square;
@@ -577,12 +529,22 @@ const ChessBoard = () => {
                   <>
                     {isPromotedWhitePawn && (
                       <div className="shadow-lg h-auto promote-white z-20">
-                        <PromotionPawn piece={piece} square={square} />
+                        <PromotionPawn
+                          piece={piece}
+                          square={square}
+                          game={game}
+                          previousPawnPosition={previousPawnPosition}
+                        />
                       </div>
                     )}
                     {isPromotedBlackPawn && (
                       <div className="shadow-lg h-auto promote-black z-20">
-                        <PromotionPawn piece={piece} square={square} />
+                        <PromotionPawn
+                          piece={piece}
+                          square={square}
+                          game={game}
+                          previousPawnPosition={previousPawnPosition}
+                        />
                       </div>
                     )}
                     <div
@@ -603,12 +565,22 @@ const ChessBoard = () => {
                   <>
                     {isPromotedWhitePawn && (
                       <div className="shadow-lg h-auto promote-white z-20">
-                        <PromotionPawn piece={piece} square={square} />
+                        <PromotionPawn
+                          piece={piece}
+                          square={square}
+                          game={game}
+                          previousPawnPosition={previousPawnPosition}
+                        />
                       </div>
                     )}
                     {isPromotedBlackPawn && (
                       <div className="shadow-lg h-auto promote-black z-20">
-                        <PromotionPawn piece={piece} square={square} />
+                        <PromotionPawn
+                          piece={piece}
+                          square={square}
+                          game={game}
+                          previousPawnPosition={previousPawnPosition}
+                        />
                       </div>
                     )}
                     <div

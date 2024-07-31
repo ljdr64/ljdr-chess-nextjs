@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { Chess } from 'chess.js';
 import { ChessBoardContext, ChessBoardContextType } from '../../Context';
 import Piece from '../Piece';
 import '../ChessBoard/styles.css';
@@ -6,11 +7,18 @@ import '../ChessBoard/styles.css';
 interface PromotionPawnProps {
   piece: 'P' | 'p';
   square: string;
+  game: Chess;
+  previousPawnPosition: string;
 }
 
 type PieceType = 'Q' | 'N' | 'R' | 'B' | 'b' | 'r' | 'n' | 'q';
 
-const PromotionPawn: React.FC<PromotionPawnProps> = ({ piece, square }) => {
+const PromotionPawn: React.FC<PromotionPawnProps> = ({
+  piece,
+  square,
+  game,
+  previousPawnPosition,
+}) => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
   const [selectedPiece, setSelectedPiece] = useState<PieceType | null>(null);
 
@@ -28,12 +36,14 @@ const PromotionPawn: React.FC<PromotionPawnProps> = ({ piece, square }) => {
   };
 
   const handlePieceClick = (selectedPiece: PieceType) => {
-    context.handlePromote(selectedPiece, square);
+    game.move({
+      from: previousPawnPosition,
+      to: square,
+      promotion: selectedPiece.toLowerCase(),
+    });
+    context.setFEN(game.fen());
     context.setCurrentTurn(context.currentTurn === 'white' ? 'black' : 'white');
-    context.setNotation(
-      (prev) =>
-        prev + context.promotionNotation + '=' + selectedPiece.toUpperCase()
-    );
+    context.setNotation(game.pgn());
     context.setPromotionModal(false);
     context.setPrevToPromotionMove({ from: '', to: '' });
   };
