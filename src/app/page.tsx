@@ -5,8 +5,8 @@ import { ChessBoardContextType, ChessBoardContext } from '../Context';
 import Layout from '../Components/Layout';
 import ChessBoard from '../Components/ChessBoard';
 import ChessNotation from '../Components/ChessNotation';
-import '../Components/ChessBoard/styles.css';
 import ChessClock from '../Components/ChessClock';
+import '../Components/ChessBoard/styles.css';
 
 function ChessGame() {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;

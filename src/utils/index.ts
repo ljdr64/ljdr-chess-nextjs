@@ -42,7 +42,7 @@ export const FENToBoard2DArray = (fen: string): Array<Array<string>> => {
  */
 export const board2DArrayToFEN = (
   board: Array<Array<string>>,
-  currentTurn: 'white' | 'black',
+  currentTurn: string,
   fullmoveNumber: number,
   halfmoveNumber: number,
   castlingAvailability: string,

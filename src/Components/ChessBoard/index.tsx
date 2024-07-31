@@ -180,8 +180,8 @@ const ChessBoard = () => {
 
     if (possibleMoves.some((item) => item === square)) {
       if (
-        (draggingPiece === 'P' && square[1] === '8') ||
-        (draggingPiece === 'p' && square[1] === '1')
+        (draggingPiece === 'P' && square?.[1] === '8') ||
+        (draggingPiece === 'p' && square?.[1] === '1')
       ) {
         context?.setPromotionModal(true);
         context?.setPromotionNotation(

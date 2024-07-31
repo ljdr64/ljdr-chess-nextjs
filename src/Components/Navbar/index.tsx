@@ -1,31 +1,37 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef, MouseEvent, RefObject } from 'react';
 import Link from 'next/link';
 import { FaChess } from 'react-icons/fa';
 import { LuAlignJustify } from 'react-icons/lu';
 import './styles.css';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const Links = [{ name: 'ChessGame', link: '/' }];
+  let User = [
+    { name: 'Login', link: '/login' },
+    { name: 'Profile', link: '/profile' },
+  ];
 
-  const toggleMenu = (e: React.MouseEvent) => {
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const menuRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+
+  const toggleMenu = (e: MouseEvent<HTMLButtonElement>): void => {
     e.stopPropagation();
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const closeMenu = () => {
+  const closeMenu = (): void => {
     setIsMenuOpen(false);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = (event: MouseEvent<Document>): void => {
     if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
       setIsMenuOpen(false);
     }
   };
 
-  const handleResize = () => {
+  const handleResize = (): void => {
     if (window.innerWidth >= 1024) {
       setIsMenuOpen(false);
     }
@@ -48,11 +54,9 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`flex items-center fixed z-30 top-0 w-full min-w-[360px] py-2 px-8 text-sm font-medium bg-white shadow-md ${
-        isMenuOpen ? 'menu-open' : ''
-      }`}
+      className={`flex items-center fixed z-30 top-0 w-full min-w-[360px] py-2 px-8 text-sm font-medium bg-white shadow-md ${isMenuOpen}`}
     >
-      <div className="lg:hidden flex justify-between items-center w-full lg:w-auto">
+      <div className="lg:hidden justify-between flex items-center w-full lg:w-auto">
         <div className="flex items-center">
           <FaChess
             size={40}
@@ -90,32 +94,24 @@ const Navbar = () => {
               <LuAlignJustify />
             </button>
           </li>
+          {Links.map((link) => (
+            <li className="lg:m-0 mt-5 mb-5 ml-2" key={link.name}>
+              <Link href={link.link} onClick={closeMenu}>
+                {link.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <ul className="flex flex-col lg:flex-row lg:gap-8 lg:items-center">
+          {User.map((link) => (
+            <li className="lg:m-0 mt-5 mb-5 ml-2" key={link.name}>
+              <Link href={link.link} onClick={closeMenu}>
+                {link.name}
+              </Link>
+            </li>
+          ))}
           <li className="lg:m-0 mt-5 mb-5 ml-2">
-            <Link
-              href="/"
-              onClick={closeMenu}
-              className="hover:underline hover:underline-offset-4"
-            >
-              ChessGame
-            </Link>
-          </li>
-          <li className="lg:m-0 mt-5 mb-5 ml-2">
-            <Link
-              href="/login"
-              onClick={closeMenu}
-              className="hover:underline hover:underline-offset-4"
-            >
-              Login
-            </Link>
-          </li>
-          <li className="lg:m-0 mt-5 mb-5 ml-2">
-            <Link
-              href="/profile"
-              onClick={closeMenu}
-              className="hover:underline hover:underline-offset-4"
-            >
-              Profile
-            </Link>
+            <Link href="/sign-in"></Link>
           </li>
         </ul>
       </div>

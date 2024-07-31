@@ -1,17 +1,24 @@
 import React, { useContext, useState } from 'react';
-import { ChessBoardContext } from '../../Context';
+import { ChessBoardContext, ChessBoardContextType } from '../../Context';
 import Piece from '../Piece';
 import '../ChessBoard/styles.css';
 
-const PromotionPawn = ({ piece, square }) => {
-  const context = useContext(ChessBoardContext);
-  const [selectedPiece, setSelectedPiece] = useState(null);
+interface PromotionPawnProps {
+  piece: 'P' | 'p';
+  square: string;
+}
 
-  const handleTouchStart = (pieceType) => {
+type PieceType = 'Q' | 'N' | 'R' | 'B' | 'b' | 'r' | 'n' | 'q';
+
+const PromotionPawn: React.FC<PromotionPawnProps> = ({ piece, square }) => {
+  const context = useContext(ChessBoardContext) as ChessBoardContextType;
+  const [selectedPiece, setSelectedPiece] = useState<PieceType | null>(null);
+
+  const handleTouchStart = (pieceType: PieceType) => {
     setSelectedPiece(pieceType);
   };
 
-  const handleTouchEnd = (pieceType) => {
+  const handleTouchEnd = (pieceType: PieceType) => {
     if (selectedPiece === pieceType) {
       setTimeout(() => {
         handlePieceClick(pieceType);
@@ -20,7 +27,7 @@ const PromotionPawn = ({ piece, square }) => {
     setSelectedPiece(null);
   };
 
-  const handlePieceClick = (selectedPiece) => {
+  const handlePieceClick = (selectedPiece: PieceType) => {
     context.handlePromote(selectedPiece, square);
     context.setCurrentTurn(context.currentTurn === 'white' ? 'black' : 'white');
     context.setNotation(
@@ -42,18 +49,20 @@ const PromotionPawn = ({ piece, square }) => {
                 context.isTouchDevice && selectedPiece === pieceType
                   ? 'bg-orange-400'
                   : ''
-              }  ${!context.isTouchDevice ? 'hover:bg-orange-400' : ''}`}
+              } ${!context.isTouchDevice ? 'hover:bg-orange-400' : ''}`}
               onTouchStart={() =>
-                context.isTouchDevice && handleTouchStart(pieceType)
+                context.isTouchDevice &&
+                handleTouchStart(pieceType as PieceType)
               }
               onTouchEnd={() =>
-                context.isTouchDevice && handleTouchEnd(pieceType)
+                context.isTouchDevice && handleTouchEnd(pieceType as PieceType)
               }
               onClick={() =>
-                !context.isTouchDevice && handlePieceClick(pieceType)
+                !context.isTouchDevice &&
+                handlePieceClick(pieceType as PieceType)
               }
             >
-              <Piece piece={pieceType} />
+              <Piece piece={pieceType as PieceType} />
             </div>
           ))}
         </div>
@@ -68,16 +77,18 @@ const PromotionPawn = ({ piece, square }) => {
                   : ''
               } ${!context.isTouchDevice ? 'hover:bg-orange-400' : ''}`}
               onTouchStart={() =>
-                context.isTouchDevice && handleTouchStart(pieceType)
+                context.isTouchDevice &&
+                handleTouchStart(pieceType as PieceType)
               }
               onTouchEnd={() =>
-                context.isTouchDevice && handleTouchEnd(pieceType)
+                context.isTouchDevice && handleTouchEnd(pieceType as PieceType)
               }
               onClick={() =>
-                !context.isTouchDevice && handlePieceClick(pieceType)
+                !context.isTouchDevice &&
+                handlePieceClick(pieceType as PieceType)
               }
             >
-              <Piece piece={pieceType} />
+              <Piece piece={pieceType as PieceType} />
             </div>
           ))}
         </div>

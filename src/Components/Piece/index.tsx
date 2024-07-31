@@ -1,5 +1,6 @@
-import '../ChessBoard/styles.css';
+import Image from 'next/image';
 import React from 'react';
+import '../ChessBoard/styles.css';
 
 interface PieceProps {
   piece: string; // La pieza es una cadena, puede ser 'k', 'q', 'r', etc.
@@ -48,7 +49,13 @@ const Piece: React.FC<PieceProps> = ({ piece, onClick }) => {
       className="w-full h-full flex items-center justify-center select-none"
       onClick={onClick}
     >
-      <img src={svgUrl} alt={`Chess piece ${piece}`} className="dim-piece" />
+      <Image
+        src={svgUrl}
+        alt={`Chess piece ${piece}`}
+        width={64}
+        height={64}
+        className="dim-piece"
+      />
     </div>
   );
 };
