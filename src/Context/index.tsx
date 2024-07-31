@@ -17,6 +17,7 @@ export interface ChessBoardContextType {
   promotionModal: boolean;
   setPromotionNotation: React.Dispatch<React.SetStateAction<string>>;
   promotionNotation: string;
+  handlePromote: any;
   setLastFEN: React.Dispatch<React.SetStateAction<string>>;
   lastFEN: string;
   setIsClockZero: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,6 +45,9 @@ export const ChessBoardProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   const [fen, setFEN] = useState(initialFEN);
+  const [board2DArray, setBoard2DArray] = useState(
+    FENToBoard2DArray(initialFEN)
+  );
   const [lastFEN, setLastFEN] = useState('');
   const [lastMove, setLastMove] = useState({ from: '', to: '' });
   const [prevToPromotionMove, setPrevToPromotionMove] = useState({
@@ -58,7 +62,10 @@ export const ChessBoardProvider: React.FC<{ children: ReactNode }> = ({
   const [isClockZero, setIsClockZero] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [chessResult, setChessResult] = useState('');
-  const board2DArray = FENToBoard2DArray(fen);
+
+  useEffect(() => {
+    setBoard2DArray(FENToBoard2DArray(fen));
+  }, [fen]);
 
   useEffect(() => {
     const detectTouchDevice = () => {
@@ -69,6 +76,20 @@ export const ChessBoardProvider: React.FC<{ children: ReactNode }> = ({
 
     detectTouchDevice();
   }, []);
+
+  const handlePromote = (
+    from: string,
+    to: string,
+    piece: string,
+    board: string[][]
+  ) => {
+    const newBoard = board.map((row) => [...row]);
+    newBoard[8 - parseInt(to[1])][to.charCodeAt(0) - 'a'.charCodeAt(0)] = piece;
+    newBoard[8 - parseInt(from[1])][from.charCodeAt(0) - 'a'.charCodeAt(0)] =
+      'empty';
+    setBoard2DArray(newBoard);
+    return;
+  };
 
   return (
     <ChessBoardContext.Provider
@@ -86,6 +107,7 @@ export const ChessBoardProvider: React.FC<{ children: ReactNode }> = ({
         promotionModal,
         setPromotionNotation,
         promotionNotation,
+        handlePromote,
         setLastFEN,
         lastFEN,
         setIsClockZero,

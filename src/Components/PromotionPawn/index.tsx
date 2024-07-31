@@ -8,7 +8,7 @@ interface PromotionPawnProps {
   piece: 'P' | 'p';
   square: string;
   game: Chess;
-  previousPawnPosition: string;
+  prevSquarePromotion: string;
 }
 
 type PieceType = 'Q' | 'N' | 'R' | 'B' | 'b' | 'r' | 'n' | 'q';
@@ -17,7 +17,7 @@ const PromotionPawn: React.FC<PromotionPawnProps> = ({
   piece,
   square,
   game,
-  previousPawnPosition,
+  prevSquarePromotion,
 }) => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
   const [selectedPiece, setSelectedPiece] = useState<PieceType | null>(null);
@@ -37,7 +37,7 @@ const PromotionPawn: React.FC<PromotionPawnProps> = ({
 
   const handlePieceClick = (selectedPiece: PieceType) => {
     game.move({
-      from: previousPawnPosition,
+      from: prevSquarePromotion,
       to: square,
       promotion: selectedPiece.toLowerCase(),
     });

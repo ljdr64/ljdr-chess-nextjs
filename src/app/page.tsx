@@ -43,7 +43,7 @@ function ChessGame() {
         </div>
         <div className="lg:block bg-gray-200 lg:w-full max-w-[var(--dim-board)] sm:max-w-[var(--dim-board-padding)] chessgame-padding rounded-lg shadow-lg">
           <pre className="h-[var(--dim-square)] text-wrap border border-gray-600 shadow-lg text-sm bg-white p-2 overflow-y-scroll">
-            {context?.promotionModal ? context?.lastFEN : context?.fen}
+            {context?.fen}
           </pre>
           <pre
             ref={notationRef}
