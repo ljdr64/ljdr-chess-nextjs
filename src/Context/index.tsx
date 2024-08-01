@@ -40,10 +40,10 @@ export const ChessBoardContext = createContext<
   ChessBoardContextType | undefined
 >(undefined);
 
-export const ChessBoardProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+export const ChessBoardProvider: React.FC<{
+  children: ReactNode;
+  initialFEN: string;
+}> = ({ children, initialFEN }) => {
   const [fen, setFEN] = useState(initialFEN);
   const [board2DArray, setBoard2DArray] = useState(
     FENToBoard2DArray(initialFEN)
