@@ -444,11 +444,9 @@ const ChessBoard = () => {
     isPossibleTake: boolean,
     isWhiteInCheck: boolean,
     isBlackInCheck: boolean,
-    isPromotedWhitePawn: boolean,
-    isPromotedBlackPawn: boolean,
     isLastMoveSquare: boolean
   ) => {
-    let baseClass = isLightSquare ? 'light-square' : 'dark-square';
+    let baseClass = '';
 
     if (isLastMoveSquare) {
       baseClass = isLightSquare ? 'bg-blue-300' : 'bg-blue-400';
@@ -456,10 +454,6 @@ const ChessBoard = () => {
 
     if (isHighlightedLastMove) {
       return baseClass;
-    }
-
-    if (isPromotedWhitePawn || isPromotedBlackPawn) {
-      return `${baseClass} bg-blue-500`;
     }
 
     if (isWhiteInCheck || isBlackInCheck) {
@@ -480,7 +474,7 @@ const ChessBoard = () => {
   };
 
   return (
-    <div className="board-container mx-auto select-none">
+    <div className="bg-board">
       {context?.promotionModal && (
         <div className="flex absolute dim-board bg-gray-500 opacity-50 z-10"></div>
       )}
@@ -523,8 +517,6 @@ const ChessBoard = () => {
               isPossibleTake,
               isWhiteInCheck,
               isBlackInCheck,
-              isPromotedWhitePawn,
-              isPromotedBlackPawn,
               isLastMoveSquare
             );
 

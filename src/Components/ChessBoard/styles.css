@@ -65,9 +65,21 @@
   }
 }
 
-@media screen and (max-width: 372px) {
+@media screen and (max-width: 388px) {
   :root {
     --dim-square: 44px;
+  }
+}
+
+@media screen and (max-width: 372px) {
+  :root {
+    --dim-square: 42px;
+  }
+}
+
+@media screen and (max-width: 354px) {
+  :root {
+    --dim-square: 40px;
   }
 }
 
@@ -111,6 +123,10 @@
     rgba(156, 163, 175, 0.6) 65%,
     transparent 100%
   );
+}
+
+.bg-board {
+  background-image: url("/assets/svg/boards/green.svg");
 }
 
 .dim-square,

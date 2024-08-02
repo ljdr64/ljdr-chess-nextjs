@@ -42,7 +42,7 @@ const Piece: React.FC<PieceProps> = ({ piece, onClick }) => {
   }
 
   // Construir la ruta relativa al SVG
-  const svgUrl = `/assets/svg/${symbolId}.svg`;
+  const svgUrl = `/assets/svg/pieces/${symbolId}.svg`;
 
   return (
     <div
