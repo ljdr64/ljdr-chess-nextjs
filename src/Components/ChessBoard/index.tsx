@@ -118,6 +118,25 @@ const ChessBoard = () => {
     }
   }, [context?.isClockZero]);
 
+  useEffect(() => {
+    if (draggingPiece === 'K' && context?.lastMove.from === 'e1') {
+      if (context?.lastMove.to === 'g1') {
+        context?.setLastMove({ from: 'e1', to: 'h1' });
+      }
+      if (context?.lastMove.to === 'c1') {
+        context?.setLastMove({ from: 'e1', to: 'a1' });
+      }
+    }
+    if (draggingPiece === 'k' && context?.lastMove.from === 'e8') {
+      if (context?.lastMove.to === 'g8') {
+        context?.setLastMove({ from: 'e8', to: 'h8' });
+      }
+      if (context?.lastMove.to === 'c8') {
+        context?.setLastMove({ from: 'e8', to: 'a8' });
+      }
+    }
+  }, [context?.lastMove]);
+
   const handleMouseClick = (square: SquareType): void => {
     if (draggingPiece === 'empty' || context?.isClockZero) return;
 
@@ -170,6 +189,22 @@ const ChessBoard = () => {
     }
 
     if (possibleMoves.some((item) => item === square)) {
+      if (draggingPiece === 'K' && currentSquare === 'e1') {
+        if (square === 'h1') {
+          square = 'g1';
+        }
+        if (square === 'a1') {
+          square = 'c1';
+        }
+      }
+      if (draggingPiece === 'k' && currentSquare === 'e8') {
+        if (square === 'h8') {
+          square = 'g8';
+        }
+        if (square === 'a8') {
+          square = 'c8';
+        }
+      }
       if (
         (draggingPiece === 'P' && square?.[1] === '8') ||
         (draggingPiece === 'p' && square?.[1] === '1')
@@ -230,6 +265,24 @@ const ChessBoard = () => {
       .moves({ verbose: true })
       .filter((move) => move.from === square)
       .map((move) => move.to);
+
+    if (piece === 'K' && square === 'e1') {
+      if (moves.some((item) => item === 'g1')) {
+        moves.push('h1');
+      }
+      if (moves.some((item) => item === 'c1')) {
+        moves.push('a1');
+      }
+    }
+
+    if (piece === 'k' && square === 'e8') {
+      if (moves.some((item) => item === 'g8')) {
+        moves.push('h8');
+      }
+      if (moves.some((item) => item === 'c8')) {
+        moves.push('a8');
+      }
+    }
 
     setPossibleMoves(moves);
 
