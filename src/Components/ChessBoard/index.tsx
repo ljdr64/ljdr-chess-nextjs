@@ -315,6 +315,23 @@ const ChessBoard = () => {
       .filter((move) => move.from === currentSquare)
       .map((move) => move.to);
 
+    if (draggingPiece === 'K' && currentSquare === 'e1') {
+      if (moves.some((item) => item === 'g1')) {
+        moves.push('h1');
+      }
+      if (moves.some((item) => item === 'c1')) {
+        moves.push('a1');
+      }
+    }
+    if (draggingPiece === 'k' && currentSquare === 'e8') {
+      if (moves.some((item) => item === 'g8')) {
+        moves.push('h8');
+      }
+      if (moves.some((item) => item === 'c8')) {
+        moves.push('a8');
+      }
+    }
+
     const squareArea: { [key: string]: HTMLElement | null } = {};
     const squarePos: { [key: string]: { posX: number; posY: number } } = {};
 
@@ -403,7 +420,7 @@ const ChessBoard = () => {
       row.forEach((piece, colIndex) => {
         const file = String.fromCharCode('a'.charCodeAt(0) + colIndex);
         const rank = 8 - rowIndex;
-        const square = `${file}${rank}`;
+        let square = `${file}${rank}`;
 
         if (
           position.y >=
@@ -416,6 +433,22 @@ const ChessBoard = () => {
             squarePos[square].posX - piecePos.posX + squareSize / 2 - 1
         ) {
           positionFound = true;
+          if (draggingPiece === 'K' && currentSquare === 'e1') {
+            if (square === 'h1') {
+              square = 'g1';
+            }
+            if (square === 'a1') {
+              square = 'c1';
+            }
+          }
+          if (draggingPiece === 'k' && currentSquare === 'e8') {
+            if (square === 'h8') {
+              square = 'g8';
+            }
+            if (square === 'a8') {
+              square = 'c8';
+            }
+          }
           if (moves.includes(square)) {
             if (
               (draggingPiece === 'P' && square[1] === '8') ||
