@@ -6,7 +6,10 @@ import { createContext, ReactNode, useEffect, useState } from 'react';
 export interface ChessBoardContextType {
   setFEN: React.Dispatch<React.SetStateAction<string>>;
   fen: string;
+  setBoard2DArray: React.Dispatch<React.SetStateAction<string[][]>>;
   board2DArray: string[][];
+  setBoardPrevToPromotion: React.Dispatch<React.SetStateAction<string[][]>>;
+  boardPrevToPromotion: string[][];
   setCurrentTurn: React.Dispatch<React.SetStateAction<string>>;
   currentTurn: string;
   setOnPromote: React.Dispatch<React.SetStateAction<string | null>>;
@@ -48,6 +51,9 @@ export const ChessBoardProvider: React.FC<{
   const [board2DArray, setBoard2DArray] = useState(
     FENToBoard2DArray(initialFEN)
   );
+  const [boardPrevToPromotion, setBoardPrevToPromotion] = useState(
+    FENToBoard2DArray(initialFEN)
+  );
   const [lastFEN, setLastFEN] = useState('');
   const [lastMove, setLastMove] = useState({ from: '', to: '' });
   const [prevToPromotionMove, setPrevToPromotionMove] = useState({
@@ -83,6 +89,7 @@ export const ChessBoardProvider: React.FC<{
     piece: string,
     board: string[][]
   ) => {
+    setBoardPrevToPromotion(board);
     const newBoard = board.map((row) => [...row]);
     newBoard[8 - parseInt(to[1])][to.charCodeAt(0) - 'a'.charCodeAt(0)] = piece;
     newBoard[8 - parseInt(from[1])][from.charCodeAt(0) - 'a'.charCodeAt(0)] =
@@ -96,7 +103,10 @@ export const ChessBoardProvider: React.FC<{
       value={{
         setFEN,
         fen,
+        setBoard2DArray,
         board2DArray,
+        setBoardPrevToPromotion,
+        boardPrevToPromotion,
         setCurrentTurn,
         currentTurn,
         setOnPromote,

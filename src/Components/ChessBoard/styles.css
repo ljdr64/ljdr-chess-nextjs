@@ -163,6 +163,12 @@
 
 .font-size-clock {
   font-size: var(--dim-padding);
+  width: calc(var(--dim-padding) * 3.3);
+}
+
+.font-size-clock-ten-seconds {
+  font-size: var(--dim-padding);
+  width: calc(var(--dim-padding) * 4.3);
 }
 
 .touch-none {

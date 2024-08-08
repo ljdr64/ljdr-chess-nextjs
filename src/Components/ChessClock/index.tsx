@@ -3,19 +3,26 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { ChessBoardContext, ChessBoardContextType } from '../../Context';
 
-const ChessClock = ({ initialTime, turn }) => {
+const ChessClock = ({
+  initialTime,
+  turn,
+}: {
+  initialTime: number;
+  turn: string;
+}) => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
   const [whiteTime, setWhiteTime] = useState(initialTime);
   const [blackTime, setBlackTime] = useState(initialTime);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef<NodeJS.Timeout | number>(0);
+  const fullmoveNumber = parseInt(context?.fen.split(' ')[5], 10);
 
   useEffect(() => {
     const tick = () => {
-      if (context?.fullmoveNumber > 1 && context?.chessResult === '') {
+      if (fullmoveNumber > 1 && context?.chessResult === '') {
         if (context?.currentTurn === 'white') {
-          setWhiteTime((prev) => (prev > 0 ? prev - 100 : 0));
+          setWhiteTime((prev: number) => (prev > 0 ? prev - 100 : 0));
         } else {
-          setBlackTime((prev) => (prev > 0 ? prev - 100 : 0));
+          setBlackTime((prev: number) => (prev > 0 ? prev - 100 : 0));
         }
       }
     };
@@ -38,8 +45,7 @@ const ChessClock = ({ initialTime, turn }) => {
       context?.setIsClockZero(true);
       if (context?.promotionModal) {
         context?.setPromotionModal(false);
-        context?.setFEN(context?.lastFEN);
-        context?.setLastMove(context?.prevToPromotionMove);
+        context?.setBoard2DArray(context?.boardPrevToPromotion);
       }
     }
   }, [whiteTime, blackTime]);
@@ -49,7 +55,11 @@ const ChessClock = ({ initialTime, turn }) => {
       <div>
         {turn === 'white' ? (
           <div
-            className={`font-size-clock px-2 ${
+            className={`px-2 ${
+              whiteTime < 10000
+                ? 'font-size-clock-ten-seconds'
+                : 'font-size-clock'
+            } ${
               whiteTime < 10000 && context?.currentTurn === 'white'
                 ? 'bg-red-300'
                 : context?.currentTurn === 'white'
@@ -61,13 +71,18 @@ const ChessClock = ({ initialTime, turn }) => {
           </div>
         ) : turn === 'black' ? (
           <div
-            className={`font-size-clock px-2 ${
-              blackTime < 10000 && context?.currentTurn === 'black'
-                ? 'bg-red-300'
-                : context?.currentTurn === 'black'
-                ? 'bg-white'
-                : 'bg-gray-300'
-            }`}
+            className={`px-2 ${
+              blackTime < 10000
+                ? 'font-size-clock-ten-seconds'
+                : 'font-size-clock'
+            }
+              ${
+                blackTime < 10000 && context?.currentTurn === 'black'
+                  ? 'bg-red-300'
+                  : context?.currentTurn === 'black'
+                  ? 'bg-white'
+                  : 'bg-gray-300'
+              }`}
           >
             {formatTime(blackTime)}
           </div>
@@ -79,7 +94,7 @@ const ChessClock = ({ initialTime, turn }) => {
   );
 };
 
-const formatTime = (milliseconds) => {
+const formatTime = (milliseconds: number) => {
   const totalSeconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
