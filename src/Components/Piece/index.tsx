@@ -7,33 +7,25 @@ interface PieceProps {
   onClick?: () => void; // La función onClick es opcional y no toma argumentos
 }
 
-const Piece: React.FC<PieceProps> = ({ piece, onClick }) => {
-  // Función para determinar el ID del símbolo basado en la pieza recibida
-  const getSymbolId = (piece: string): string | null => {
-    const normalizedPiece = piece.toLowerCase(); // Convertir a minúscula para asegurar la comparación
-    if (
-      piece === 'k' ||
-      piece === 'q' ||
-      piece === 'r' ||
-      piece === 'b' ||
-      piece === 'n' ||
-      piece === 'p'
-    ) {
-      return `Chess_${normalizedPiece}dt45`; // Letra minúscula (d)
-    } else if (
-      piece === 'K' ||
-      piece === 'Q' ||
-      piece === 'R' ||
-      piece === 'B' ||
-      piece === 'N' ||
-      piece === 'P'
-    ) {
-      return `Chess_${normalizedPiece}lt45`; // Letra mayúscula (l)
-    } else {
-      return null; // Devuelve null si no se encuentra un ID válido
-    }
-  };
+// Función para determinar el ID del símbolo basado en la pieza recibida
+const getSymbolId = (piece: string): string | null => {
+  const normalizedPiece = piece.toLowerCase(); // Convertir a minúscula para asegurar la comparación
+  if (
+    normalizedPiece === 'k' ||
+    normalizedPiece === 'q' ||
+    normalizedPiece === 'r' ||
+    normalizedPiece === 'b' ||
+    normalizedPiece === 'n' ||
+    normalizedPiece === 'p'
+  ) {
+    return piece === piece.toLowerCase()
+      ? `Chess_${normalizedPiece}dt45`
+      : `Chess_${normalizedPiece}lt45`; // Letra minúscula (d) o mayúscula (l)
+  }
+  return null; // Devuelve null si no se encuentra un ID válido
+};
 
+const Piece: React.FC<PieceProps> = React.memo(({ piece, onClick }) => {
   const symbolId = getSymbolId(piece);
 
   // Si no se encuentra un ID válido, se devuelve null
@@ -58,6 +50,8 @@ const Piece: React.FC<PieceProps> = ({ piece, onClick }) => {
       />
     </div>
   );
-};
+});
+
+Piece.displayName = 'Piece';
 
 export default Piece;
