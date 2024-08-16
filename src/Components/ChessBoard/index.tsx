@@ -156,6 +156,9 @@ const ChessBoard = () => {
 
     if (possibleMoves.some((item) => item === square)) {
       context?.setLastFEN(context?.fen);
+      context?.setPrevToLastMove(context?.lastMove);
+      context?.setLastMove({ from: currentSquare, to: square });
+
       if (draggingPiece === 'K' && currentSquare === 'e1') {
         if (square === 'h1') {
           square = 'g1';
@@ -187,9 +190,9 @@ const ChessBoard = () => {
         (draggingPiece === 'p' && square?.[1] === '1')
       ) {
         context?.setPromotionModal(true);
+        setPrevSquarePromotion(currentSquare);
         setTimeout(() => {
           context.handlePromote(currentSquare, square, draggingPiece, board);
-          setPrevSquarePromotion(currentSquare);
         }, 290);
       } else {
         setTimeout(() => {
@@ -208,7 +211,6 @@ const ChessBoard = () => {
           }
           context?.setFEN(game.fen());
         }, 290);
-        context?.setLastMove({ from: currentSquare, to: square });
       }
       setDragStartSquare('');
       setHighlightedSquare('');
@@ -428,6 +430,12 @@ const ChessBoard = () => {
           }
           if (moves.includes(square)) {
             context?.setLastFEN(context?.fen);
+            context?.setPrevToLastMove(context?.lastMove);
+            context?.setLastMove({
+              from: currentSquare,
+              to: square,
+            });
+
             if (
               (draggingPiece === 'P' && square[1] === '8') ||
               (draggingPiece === 'p' && square[1] === '1')
@@ -442,10 +450,6 @@ const ChessBoard = () => {
               context?.setPromotionModal(true);
             } else {
               game.move({ from: currentSquare, to: square });
-              context?.setLastMove({
-                from: currentSquare,
-                to: square,
-              });
               context?.setCurrentTurn(game.turn() === 'w' ? 'white' : 'black');
               context?.setNotation(game.pgn());
               if (game.isCheckmate()) {

@@ -41,15 +41,11 @@ const PromotionPawn: React.FC<PromotionPawnProps> = ({
       to: square,
       promotion: selectedPiece.toLowerCase(),
     });
-    context?.setLastMove({
-      from: prevSquarePromotion,
-      to: square,
-    });
     context.setFEN(game.fen());
     context.setCurrentTurn(context.currentTurn === 'white' ? 'black' : 'white');
     context.setNotation(game.pgn());
     context.setPromotionModal(false);
-    context.setPrevToPromotionMove({ from: '', to: '' });
+    context.setPrevToLastMove({ from: '', to: '' });
   };
 
   return (

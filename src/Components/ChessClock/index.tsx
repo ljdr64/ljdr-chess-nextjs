@@ -45,7 +45,8 @@ const ChessClock = ({
       context?.setIsClockZero(true);
       if (context?.promotionModal) {
         context?.setPromotionModal(false);
-        context?.setBoard2DArray(context?.boardPrevToPromotion);
+        context?.setLastMove(context?.prevToLastMove);
+        context?.setFEN(context?.lastFEN);
       }
     }
   }, [whiteTime, blackTime]);

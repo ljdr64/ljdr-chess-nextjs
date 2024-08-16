@@ -33,10 +33,10 @@ export interface ChessBoardContextType {
     React.SetStateAction<{ from: string; to: string }>
   >;
   lastMove: { from: string; to: string };
-  setPrevToPromotionMove: React.Dispatch<
+  setPrevToLastMove: React.Dispatch<
     React.SetStateAction<{ from: string; to: string }>
   >;
-  prevToPromotionMove: { from: string; to: string };
+  prevToLastMove: { from: string; to: string };
 }
 
 export const ChessBoardContext = createContext<
@@ -56,7 +56,7 @@ export const ChessBoardProvider: React.FC<{
   );
   const [lastFEN, setLastFEN] = useState('');
   const [lastMove, setLastMove] = useState({ from: '', to: '' });
-  const [prevToPromotionMove, setPrevToPromotionMove] = useState({
+  const [prevToLastMove, setPrevToLastMove] = useState({
     from: '',
     to: '',
   });
@@ -140,8 +140,8 @@ export const ChessBoardProvider: React.FC<{
         chessResult,
         setLastMove,
         lastMove,
-        setPrevToPromotionMove,
-        prevToPromotionMove,
+        setPrevToLastMove,
+        prevToLastMove,
       }}
     >
       {children}
