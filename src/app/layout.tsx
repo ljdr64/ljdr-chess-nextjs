@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { getInitialFEN } from './server/initialFEN';
 import { ChessBoardProvider } from '../Context';
 import Navbar from '@/Components/Navbar';
 import './globals.css';
@@ -18,10 +17,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const initialFEN = await getInitialFEN();
-
   return (
-    <ChessBoardProvider initialFEN={initialFEN}>
+    <ChessBoardProvider>
       <html lang="en">
         <head>
           <link rel="icon" href="/logo.svg" />

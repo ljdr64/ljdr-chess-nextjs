@@ -13,6 +13,7 @@ import { useSquareSize } from '../../Hooks/useSquareSize';
 import Piece from '../Piece';
 import PromotionPawn from '../PromotionPawn';
 import './styles.css';
+import { FENToBoard2DArray } from '@/utils';
 
 type SquareRefs = {
   [key: string]: RefObject<HTMLDivElement>;
@@ -29,7 +30,6 @@ interface Position {
 const ChessBoard = () => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
   const [game, setGame] = useState(new Chess());
-  const [fen, setFen] = useState(game.fen());
   const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
   const [prevSquarePromotion, setPrevSquarePromotion] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -42,6 +42,8 @@ const ChessBoard = () => {
   const [highlightedLastMove, setHighlightedLastMove] =
     useState<SquareType>('');
   const squareSize = useSquareSize();
+
+  const board = FENToBoard2DArray(context?.fen);
 
   const squareRefs = useMemo<SquareRefs>(() => {
     const refs: SquareRefs = {};
@@ -153,6 +155,7 @@ const ChessBoard = () => {
     }
 
     if (possibleMoves.some((item) => item === square)) {
+      context?.setLastFEN(context?.fen);
       if (draggingPiece === 'K' && currentSquare === 'e1') {
         if (square === 'h1') {
           square = 'g1';
@@ -173,12 +176,7 @@ const ChessBoard = () => {
         (draggingPiece === 'P' && square?.[1] === '8') ||
         (draggingPiece === 'p' && square?.[1] === '1')
       ) {
-        context.handlePromote(
-          currentSquare,
-          square,
-          draggingPiece,
-          context?.board2DArray
-        );
+        context.handlePromote(currentSquare, square, draggingPiece, board);
         setPrevSquarePromotion(currentSquare);
         context?.setPromotionModal(true);
       } else {
@@ -206,9 +204,8 @@ const ChessBoard = () => {
           } else if (game.isStalemate() || game.isDraw()) {
             context?.setChessResult('1/2-1/2');
           }
-          context?.setLastFEN(context.fen);
           context?.setFEN(game.fen());
-        }, 180);
+        }, 290);
         context?.setLastMove({ from: currentSquare, to: square });
       }
       setDragStartSquare('');
@@ -428,6 +425,7 @@ const ChessBoard = () => {
             }
           }
           if (moves.includes(square)) {
+            context?.setLastFEN(context?.fen);
             if (
               (draggingPiece === 'P' && square[1] === '8') ||
               (draggingPiece === 'p' && square[1] === '1')
@@ -457,7 +455,6 @@ const ChessBoard = () => {
               } else if (game.isStalemate() || game.isDraw()) {
                 context?.setChessResult('1/2-1/2');
               }
-              context?.setLastFEN(context.fen);
               context?.setFEN(game.fen());
             }
             setPosition({
@@ -545,7 +542,7 @@ const ChessBoard = () => {
         <div className="flex absolute dim-board bg-gray-500 opacity-50 z-10"></div>
       )}
       <div className="flex flex-wrap dim-board touch-none cursor-pointer select-none">
-        {context?.board2DArray.map((row, rowIndex) =>
+        {board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const file = String.fromCharCode('a'.charCodeAt(0) + colIndex);
             const rank = 8 - rowIndex;

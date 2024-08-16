@@ -1,6 +1,6 @@
 'use client';
 
-import { FENToBoard2DArray } from '../utils';
+import { board2DArrayToFEN, FENToBoard2DArray } from '../utils';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 
 export interface ChessBoardContextType {
@@ -45,8 +45,8 @@ export const ChessBoardContext = createContext<
 
 export const ChessBoardProvider: React.FC<{
   children: ReactNode;
-  initialFEN: string;
-}> = ({ children, initialFEN }) => {
+}> = ({ children }) => {
+  const initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   const [fen, setFEN] = useState(initialFEN);
   const [board2DArray, setBoard2DArray] = useState(
     FENToBoard2DArray(initialFEN)
@@ -94,7 +94,19 @@ export const ChessBoardProvider: React.FC<{
     newBoard[8 - parseInt(to[1])][to.charCodeAt(0) - 'a'.charCodeAt(0)] = piece;
     newBoard[8 - parseInt(from[1])][from.charCodeAt(0) - 'a'.charCodeAt(0)] =
       'empty';
-    setBoard2DArray(newBoard);
+    const [, , castling, enPassant, halfmove, fullmove] = fen.split(' ');
+    const fullmoveNumber = parseInt(fullmove, 10);
+    const halfmoveNumber = parseInt(halfmove, 10);
+    setFEN(
+      board2DArrayToFEN(
+        newBoard,
+        currentTurn,
+        fullmoveNumber,
+        halfmoveNumber,
+        castling,
+        enPassant
+      )
+    );
     return;
   };
 
