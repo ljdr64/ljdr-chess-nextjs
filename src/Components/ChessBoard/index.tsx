@@ -172,24 +172,26 @@ const ChessBoard = () => {
           square = 'c8';
         }
       }
+      if (squareRefs[square]?.current && squareRefs[currentSquare]?.current) {
+        const squareOffset = squareRefs[square].current;
+        const currentOffset = squareRefs[currentSquare].current;
+        if (squareOffset && currentOffset) {
+          setMovePosition({
+            x: squareOffset.offsetLeft - currentOffset.offsetLeft,
+            y: squareOffset.offsetTop - currentOffset.offsetTop,
+          });
+        }
+      }
       if (
         (draggingPiece === 'P' && square?.[1] === '8') ||
         (draggingPiece === 'p' && square?.[1] === '1')
       ) {
-        context.handlePromote(currentSquare, square, draggingPiece, board);
-        setPrevSquarePromotion(currentSquare);
         context?.setPromotionModal(true);
+        setTimeout(() => {
+          context.handlePromote(currentSquare, square, draggingPiece, board);
+          setPrevSquarePromotion(currentSquare);
+        }, 290);
       } else {
-        if (squareRefs[square]?.current && squareRefs[currentSquare]?.current) {
-          const squareOffset = squareRefs[square].current;
-          const currentOffset = squareRefs[currentSquare].current;
-          if (squareOffset && currentOffset) {
-            setMovePosition({
-              x: squareOffset.offsetLeft - currentOffset.offsetLeft,
-              y: squareOffset.offsetTop - currentOffset.offsetTop,
-            });
-          }
-        }
         setTimeout(() => {
           setMovePosition({ x: 0, y: 0 });
           game.move({ from: currentSquare, to: square });
