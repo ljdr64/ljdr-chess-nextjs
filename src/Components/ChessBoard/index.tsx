@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Chess } from 'chess.js';
@@ -27,7 +28,11 @@ interface Position {
   y: number;
 }
 
-const ChessBoard = () => {
+interface ChessBoardProps {
+  boardId: string;
+}
+
+const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
   const [game, setGame] = useState(new Chess());
   const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
@@ -42,6 +47,7 @@ const ChessBoard = () => {
   const [highlightedLastMove, setHighlightedLastMove] =
     useState<SquareType>('');
   const squareSize = useSquareSize();
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const board = FENToBoard2DArray(context?.fen);
 
@@ -265,12 +271,12 @@ const ChessBoard = () => {
 
     setPossibleMoves(moves);
 
-    const pieceMove = document.getElementById(square);
-    if (pieceMove) {
+    const pieceArea = pieceRefs[square].current;
+    if (pieceArea) {
       const offsetX =
-        e.clientX - pieceMove.getBoundingClientRect().left - squareSize / 2;
+        e.clientX - pieceArea.getBoundingClientRect().left - squareSize / 2;
       const offsetY =
-        e.clientY - pieceMove.getBoundingClientRect().top - squareSize / 2;
+        e.clientY - pieceArea.getBoundingClientRect().top - squareSize / 2;
       setPosition({ x: offsetX, y: offsetY });
       setIsDragging(true);
     }
@@ -543,7 +549,7 @@ const ChessBoard = () => {
   };
 
   return (
-    <div className="bg-board">
+    <div ref={boardRef} className="bg-board">
       {context?.promotionModal && (
         <div className="flex absolute dim-board bg-gray-500 opacity-50 z-10"></div>
       )}

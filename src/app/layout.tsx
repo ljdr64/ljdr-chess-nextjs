@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ChessBoardProvider } from '../Context';
 import Navbar from '@/Components/Navbar';
 import './globals.css';
 
@@ -18,16 +17,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ChessBoardProvider>
-      <html lang="en">
-        <head>
-          <link rel="icon" href="/logo.svg" />
-        </head>
-        <body className={inter.className}>
-          <Navbar />
-          {children}
-        </body>
-      </html>
-    </ChessBoardProvider>
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/logo.svg" />
+      </head>
+      <body className={inter.className}>
+        <Navbar />
+        {children}
+      </body>
+    </html>
   );
 }
