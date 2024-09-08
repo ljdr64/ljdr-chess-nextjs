@@ -38,7 +38,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
   const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
   const [prevSquarePromotion, setPrevSquarePromotion] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [movePosition, setMovePosition] = useState<Position>({ x: 0, y: 0 });
   const [draggingPiece, setDraggingPiece] = useState<PieceType>('empty');
   const [currentSquare, setCurrentSquare] = useState<SquareType>('');
@@ -120,7 +119,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
 
   useEffect(() => {
     if (context?.isClockZero) {
-      setPosition({ x: 0, y: 0 });
       setMovePosition({ x: 0, y: 0 });
       setDragStartSquare('');
       setHighlightedSquare('');
@@ -238,7 +236,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
       (piece === 'P' && square?.[1] === '8') ||
       (piece === 'p' && square?.[1] === '1')
     ) {
-      setPosition({ x: 0, y: 0 });
       setMovePosition({ x: 0, y: 0 });
       setIsDragging(false);
       return;
@@ -277,7 +274,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
         e.clientX - pieceArea.getBoundingClientRect().left - squareSize / 2;
       const offsetY =
         e.clientY - pieceArea.getBoundingClientRect().top - squareSize / 2;
-      setPosition({ x: offsetX, y: offsetY });
+      pieceArea.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
       setIsDragging(true);
     }
     setDraggingPiece(piece);
@@ -357,7 +354,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
     if (isDragging) {
       let newX = e.clientX - piecePos.posX + window.scrollX;
       let newY = e.clientY - piecePos.posY + window.scrollY;
-      setPosition({ x: newX, y: newY });
+      pieceArea.style.transform = `translate(${newX}px, ${newY}px)`;
     }
   };
 
@@ -406,86 +403,89 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
         const file = String.fromCharCode('a'.charCodeAt(0) + colIndex);
         const rank = 8 - rowIndex;
         let square = `${file}${rank}`;
+        const regex = /translate\((-?\d+)px, (-?\d+)px\)/;
+        const position = pieceArea.style.transform.match(regex);
 
-        if (
-          position.y >=
-            squarePos[square].posY - piecePos.posY - squareSize / 2 &&
-          position.y <=
-            squarePos[square].posY - piecePos.posY + squareSize / 2 - 1 &&
-          position.x >=
-            squarePos[square].posX - piecePos.posX - squareSize / 2 &&
-          position.x <=
-            squarePos[square].posX - piecePos.posX + squareSize / 2 - 1
-        ) {
-          positionFound = true;
-          if (draggingPiece === 'K' && currentSquare === 'e1') {
-            if (square === 'h1') {
-              square = 'g1';
-            }
-            if (square === 'a1') {
-              square = 'c1';
-            }
-          }
-          if (draggingPiece === 'k' && currentSquare === 'e8') {
-            if (square === 'h8') {
-              square = 'g8';
-            }
-            if (square === 'a8') {
-              square = 'c8';
-            }
-          }
-          if (moves.includes(square)) {
-            context?.setLastFEN(context?.fen);
-            context?.setPrevToLastMove(context?.lastMove);
-            context?.setLastMove({
-              from: currentSquare,
-              to: square,
-            });
-
-            if (
-              (draggingPiece === 'P' && square[1] === '8') ||
-              (draggingPiece === 'p' && square[1] === '1')
-            ) {
-              context.handlePromote(
-                currentSquare,
-                square,
-                draggingPiece,
-                context?.board2DArray
-              );
-              setPrevSquarePromotion(currentSquare);
-              context?.setPromotionModal(true);
-            } else {
-              game.move({ from: currentSquare, to: square });
-              context?.setCurrentTurn(game.turn() === 'w' ? 'white' : 'black');
-              context?.setNotation(game.pgn());
-              if (game.isCheckmate()) {
-                if (game.turn() === 'b') {
-                  context?.setChessResult('1-0');
-                } else if (game.turn() === 'w') {
-                  context?.setChessResult('0-1');
-                }
-              } else if (game.isStalemate() || game.isDraw()) {
-                context?.setChessResult('1/2-1/2');
+        if (position) {
+          if (
+            parseInt(position[2], 10) >=
+              squarePos[square].posY - piecePos.posY - squareSize / 2 &&
+            parseInt(position[2], 10) <=
+              squarePos[square].posY - piecePos.posY + squareSize / 2 - 1 &&
+            parseInt(position[1], 10) >=
+              squarePos[square].posX - piecePos.posX - squareSize / 2 &&
+            parseInt(position[1], 10) <=
+              squarePos[square].posX - piecePos.posX + squareSize / 2 - 1
+          ) {
+            positionFound = true;
+            if (draggingPiece === 'K' && currentSquare === 'e1') {
+              if (square === 'h1') {
+                square = 'g1';
               }
-              context?.setFEN(game.fen());
+              if (square === 'a1') {
+                square = 'c1';
+              }
             }
-            setPosition({
-              x: squarePos[square].posX - piecePos.posX,
-              y: squarePos[square].posY - piecePos.posY,
-            });
-            setDragStartSquare('');
-            setHighlightedSquare('');
-            setPossibleMoves([]);
-          } else {
-            setPosition({ x: 0, y: 0 });
-            setMovePosition({ x: 0, y: 0 });
+            if (draggingPiece === 'k' && currentSquare === 'e8') {
+              if (square === 'h8') {
+                square = 'g8';
+              }
+              if (square === 'a8') {
+                square = 'c8';
+              }
+            }
+            if (moves.includes(square)) {
+              context?.setLastFEN(context?.fen);
+              context?.setPrevToLastMove(context?.lastMove);
+              context?.setLastMove({
+                from: currentSquare,
+                to: square,
+              });
+
+              if (
+                (draggingPiece === 'P' && square[1] === '8') ||
+                (draggingPiece === 'p' && square[1] === '1')
+              ) {
+                context.handlePromote(
+                  currentSquare,
+                  square,
+                  draggingPiece,
+                  context?.board2DArray
+                );
+                setPrevSquarePromotion(currentSquare);
+                context?.setPromotionModal(true);
+              } else {
+                game.move({ from: currentSquare, to: square });
+                context?.setCurrentTurn(
+                  game.turn() === 'w' ? 'white' : 'black'
+                );
+                context?.setNotation(game.pgn());
+                if (game.isCheckmate()) {
+                  if (game.turn() === 'b') {
+                    context?.setChessResult('1-0');
+                  } else if (game.turn() === 'w') {
+                    context?.setChessResult('0-1');
+                  }
+                } else if (game.isStalemate() || game.isDraw()) {
+                  context?.setChessResult('1/2-1/2');
+                }
+                context?.setFEN(game.fen());
+              }
+              pieceArea.style.transform = '';
+              setDragStartSquare('');
+              setHighlightedSquare('');
+              setPossibleMoves([]);
+            } else {
+              pieceArea.style.transform = '';
+              setMovePosition({ x: 0, y: 0 });
+            }
           }
         }
       });
     });
 
     if (!positionFound) {
-      setPosition({ x: 0, y: 0 });
+      pieceArea.style.transform = '';
       setMovePosition({ x: 0, y: 0 });
     }
 
@@ -606,12 +606,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
                 {currentSquare === square ? (
                   <>
                     {isPromotedWhitePawn && (
-                      <div
-                        className="shadow-lg h-auto promote-white z-20"
-                        style={{
-                          transform: `translate(${position.x}px, ${position.y}px)`,
-                        }}
-                      >
+                      <div className="shadow-lg h-auto promote-white z-20">
                         <PromotionPawn
                           piece={piece}
                           square={square}
@@ -621,12 +616,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
                       </div>
                     )}
                     {isPromotedBlackPawn && (
-                      <div
-                        className="shadow-lg h-auto promote-black z-20"
-                        style={{
-                          transform: `translate(${position.x}px, ${position.y}px)`,
-                        }}
-                      >
+                      <div className="shadow-lg h-auto promote-black z-20">
                         <PromotionPawn
                           piece={piece}
                           square={square}
@@ -639,9 +629,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
                       <div
                         ref={pieceRefs[square]}
                         className="card dim-square cursor-pointer"
-                        style={{
-                          transform: `translate(${position.x}px, ${position.y}px)`,
-                        }}
                         onMouseUp={handleMouseUp}
                         onTouchEnd={handleTouchEnd}
                       >
