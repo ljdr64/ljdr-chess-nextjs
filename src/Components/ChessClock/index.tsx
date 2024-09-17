@@ -11,6 +11,7 @@ const ChessClock = ({
   turn: string;
 }) => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
+  const initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   const [whiteTime, setWhiteTime] = useState(initialTime);
   const [blackTime, setBlackTime] = useState(initialTime);
   const intervalRef = useRef<NodeJS.Timeout | number>(0);
@@ -50,6 +51,13 @@ const ChessClock = ({
       }
     }
   }, [whiteTime, blackTime]);
+
+  useEffect(() => {
+    if (context?.fen === initialFEN) {
+      setWhiteTime(initialTime);
+      setBlackTime(initialTime);
+    }
+  }, [context?.fen]);
 
   return (
     <div>

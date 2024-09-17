@@ -30,11 +30,11 @@ interface Position {
 
 interface ChessBoardProps {
   boardId: string;
+  game: Chess;
 }
 
-const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
+const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
-  const [game, setGame] = useState(new Chess());
   const [possibleMoves, setPossibleMoves] = useState<SquareType[]>([]);
   const [prevSquarePromotion, setPrevSquarePromotion] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -127,23 +127,15 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId }) => {
   }, [context?.isClockZero]);
 
   useEffect(() => {
-    if (draggingPiece === 'K' && context?.lastMove.from === 'e1') {
-      if (context?.lastMove.to === 'g1') {
-        context?.setLastMove({ from: 'e1', to: 'h1' });
-      }
-      if (context?.lastMove.to === 'c1') {
-        context?.setLastMove({ from: 'e1', to: 'a1' });
-      }
+    if (context?.isReset) {
+      setMovePosition({ x: 0, y: 0 });
+      setDragStartSquare('');
+      setHighlightedSquare('');
+      setPossibleMoves([]);
+      context?.setIsReset(false);
+      context?.setIsClockZero(false);
     }
-    if (draggingPiece === 'k' && context?.lastMove.from === 'e8') {
-      if (context?.lastMove.to === 'g8') {
-        context?.setLastMove({ from: 'e8', to: 'h8' });
-      }
-      if (context?.lastMove.to === 'c8') {
-        context?.setLastMove({ from: 'e8', to: 'a8' });
-      }
-    }
-  }, [context?.lastMove]);
+  }, [context?.isReset]);
 
   const handleMouseDown = (
     e: MouseEvent | Touch,

@@ -174,3 +174,8 @@
 .touch-none {
   touch-action: none;
 }
+
+.reset-button {
+  width: calc(var(--dim-padding) - 8px);
+  height: calc(var(--dim-padding) - 8px);
+}

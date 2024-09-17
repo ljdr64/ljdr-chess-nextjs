@@ -1,6 +1,8 @@
 'use client';
 
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Chess } from 'chess.js';
+import { FaSyncAlt } from 'react-icons/fa';
 import { ChessBoardContext, ChessBoardContextType } from '@/Context';
 import Layout from '../Layout';
 import ChessClock from '../ChessClock';
@@ -15,6 +17,7 @@ interface ChessGameProps {
 
 function ChessGame({ initialTime = 1 * 60 * 1000, boardId }: ChessGameProps) {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
+  const [game, setGame] = useState(new Chess());
   const notationRef = useRef<HTMLPreElement>(null);
   const cleanedNotation = context?.notation?.replace(/\n/g, '').trim();
 
@@ -23,6 +26,18 @@ function ChessGame({ initialTime = 1 * 60 * 1000, boardId }: ChessGameProps) {
       notationRef.current.scrollTop = notationRef.current.scrollHeight;
     }
   }, [context?.notation]);
+
+  const handleReset = () => {
+    const newGame = new Chess();
+    context?.setFEN(newGame.fen());
+    context?.setNotation('');
+    context?.setChessResult('');
+    context?.setCurrentTurn('white');
+    context?.setPromotionModal(false);
+    context?.setLastMove({ from: '', to: '' });
+    context?.setIsReset(true);
+    setGame(newGame);
+  };
 
   return (
     <Layout>
@@ -33,7 +48,7 @@ function ChessGame({ initialTime = 1 * 60 * 1000, boardId }: ChessGameProps) {
               <div className="font-semibold px-4 sm:px-0">player02</div>
               <ChessClock initialTime={initialTime} turn="black" />
             </div>
-            <ChessBoard boardId={boardId} />
+            <ChessBoard boardId={boardId} game={game} />
             <div className="flex justify-between items-center select-none">
               <div className="font-semibold px-4 sm:px-0">player01</div>
               <ChessClock initialTime={initialTime} turn="white" />
@@ -43,9 +58,17 @@ function ChessGame({ initialTime = 1 * 60 * 1000, boardId }: ChessGameProps) {
             <ChessNotation />
           </div>
         </div>
-        <div className="lg:block bg-gray-200 lg:w-full max-w-[var(--dim-board)] sm:max-w-[var(--dim-board-padding)] chessgame-padding rounded-lg shadow-lg">
+        <div className="lg:block bg-gray-200 lg:w-full max-w-[var(--dim-board)] sm:max-w-[var(--dim-board-padding)] px-[var(--dim-padding)] pb-[var(--dim-padding)] rounded-lg shadow-lg">
+          <div className="leading-none">
+            <button
+              onClick={handleReset}
+              className="bg-blue-500 text-white p-1 rounded shadow hover:bg-blue-600"
+            >
+              <FaSyncAlt className="reset-button" />
+            </button>
+          </div>
           <pre className="h-[var(--dim-square)] text-wrap border border-gray-600 shadow-lg text-sm bg-white p-2 overflow-y-scroll">
-            {context?.promotionModal ? context?.lastFEN : context?.fen}
+            {game.fen()}
           </pre>
           <pre
             ref={notationRef}

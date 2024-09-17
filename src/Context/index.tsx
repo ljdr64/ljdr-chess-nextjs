@@ -27,6 +27,8 @@ export interface ChessBoardContextType {
   isClockZero: boolean;
   setIsTouchDevice: React.Dispatch<React.SetStateAction<boolean>>;
   isTouchDevice: boolean;
+  setIsReset: React.Dispatch<React.SetStateAction<boolean>>;
+  isReset: boolean;
   setChessResult: React.Dispatch<React.SetStateAction<string>>;
   chessResult: string;
   setLastMove: React.Dispatch<
@@ -67,6 +69,7 @@ export const ChessBoardProvider: React.FC<{
   const [promotionNotation, setPromotionNotation] = useState('');
   const [isClockZero, setIsClockZero] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isReset, setIsReset] = useState(false);
   const [chessResult, setChessResult] = useState('');
 
   useEffect(() => {
@@ -136,6 +139,8 @@ export const ChessBoardProvider: React.FC<{
         isClockZero,
         setIsTouchDevice,
         isTouchDevice,
+        setIsReset,
+        isReset,
         setChessResult,
         chessResult,
         setLastMove,
