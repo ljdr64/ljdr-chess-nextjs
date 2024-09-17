@@ -1,14 +1,24 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { ChessBoardContext, ChessBoardContextType } from '../../Context';
 import '../ChessBoard/styles.css';
 
 const ChessNotation = () => {
   const context = useContext(ChessBoardContext) as ChessBoardContextType;
+  const notationRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (notationRef.current) {
+      notationRef.current.scrollTop = notationRef.current.scrollHeight;
+    }
+  }, [context?.notation]);
 
   return (
-    <div className="w-full h-[83px] lg:w-60 lg:h-[var(--dim-board)] flex flex-col bg-white overflow-y-scroll">
+    <div
+      ref={notationRef}
+      className="w-full h-[83px] lg:w-60 lg:h-[var(--dim-board)] flex flex-col bg-white overflow-y-scroll"
+    >
       {context?.notation.split('.').map((line, index) => {
         const moves = line.split(' ');
         const moveNumber = index;

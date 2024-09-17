@@ -86,6 +86,8 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
     return refs;
   }, [context?.board2DArray]);
 
+  const ghostRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (isDragging && !context?.isClockZero) {
       document.addEventListener('mousemove', handleMouseMove as EventListener, {
@@ -134,6 +136,12 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
       setPossibleMoves([]);
       context?.setIsReset(false);
       context?.setIsClockZero(false);
+      if (ghostRef.current) {
+        ghostRef.current.style.width = '0px';
+        ghostRef.current.style.height = '0px';
+        ghostRef.current.style.transform = 'translate(0px, 0px)';
+        ghostRef.current.style.visibility = 'hidden';
+      }
     }
   }, [context?.isReset]);
 
@@ -153,7 +161,13 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
     if (possibleMoves.some((item) => item === square)) {
       context?.setLastFEN(context?.fen);
       context?.setPrevToLastMove(context?.lastMove);
-      context?.setLastMove({ from: currentSquare, to: square });
+
+      if (ghostRef.current) {
+        ghostRef.current.style.width = '0px';
+        ghostRef.current.style.height = '0px';
+        ghostRef.current.style.transform = 'translate(0px, 0px)';
+        ghostRef.current.style.visibility = 'hidden';
+      }
 
       if (draggingPiece === 'K' && currentSquare === 'e1') {
         if (square === 'h1') {
@@ -171,6 +185,9 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
           square = 'c8';
         }
       }
+
+      context?.setLastMove({ from: currentSquare, to: square });
+
       if (squareRefs[square]?.current && squareRefs[currentSquare]?.current) {
         const squareOffset = squareRefs[square].current;
         const currentOffset = squareRefs[currentSquare].current;
@@ -208,6 +225,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
           context?.setFEN(game.fen());
         }, 290);
       }
+      setDraggingPiece('empty');
       setDragStartSquare('');
       setHighlightedSquare('');
       setPossibleMoves([]);
@@ -261,12 +279,32 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
     setPossibleMoves(moves);
 
     const pieceArea = pieceRefs[square].current;
+    if (pieceArea === null) {
+      return;
+    }
+    const piecePos = {
+      posX: pieceArea.offsetLeft + squareSize / 2,
+      posY: pieceArea.offsetTop + squareSize / 2,
+    };
+
     if (pieceArea) {
       const offsetX =
         e.clientX - pieceArea.getBoundingClientRect().left - squareSize / 2;
       const offsetY =
         e.clientY - pieceArea.getBoundingClientRect().top - squareSize / 2;
       pieceArea.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+      if (ghostRef.current && squareRefs['a8'].current) {
+        ghostRef.current.style.width = `${squareSize}px`;
+        ghostRef.current.style.height = `${squareSize}px`;
+        ghostRef.current.style.transform = `translate(${
+          piecePos.posX - squareRefs['a8'].current.offsetLeft - squareSize / 2
+        }px, ${
+          piecePos.posY - squareRefs['a8'].current.offsetTop - squareSize / 2
+        }px)`;
+        ghostRef.current.style.visibility = 'visible';
+      }
+
       setIsDragging(true);
     }
     setDraggingPiece(piece);
@@ -434,6 +472,13 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
                 to: square,
               });
 
+              if (ghostRef.current) {
+                ghostRef.current.style.width = '0px';
+                ghostRef.current.style.height = '0px';
+                ghostRef.current.style.transform = 'translate(0px, 0px)';
+                ghostRef.current.style.visibility = 'hidden';
+              }
+
               if (
                 (draggingPiece === 'P' && square[1] === '8') ||
                 (draggingPiece === 'p' && square[1] === '1')
@@ -464,6 +509,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
                 context?.setFEN(game.fen());
               }
               pieceArea.style.transform = '';
+              setDraggingPiece('empty');
               setDragStartSquare('');
               setHighlightedSquare('');
               setPossibleMoves([]);
@@ -620,7 +666,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
                     {movePosition.x === 0 && movePosition.y === 0 ? (
                       <div
                         ref={pieceRefs[square]}
-                        className="card dim-square cursor-pointer"
+                        className="card dim-square cursor-pointer z-10"
                         onMouseUp={handleMouseUp}
                         onTouchEnd={handleTouchEnd}
                       >
@@ -634,7 +680,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
                         className="card dim-square cursor-pointer"
                         style={{
                           transform: `translate(${movePosition.x}px, ${movePosition.y}px)`,
-                          transition: 'transform 0.3s ease',
+                          transition: 'transform 0.3s ease-in-out',
                         }}
                         onMouseUp={handleMouseUp}
                         onTouchEnd={handleTouchEnd}
@@ -681,6 +727,20 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
             );
           })
         )}
+        <div
+          ref={ghostRef}
+          className="ghost-piece absolute cursor-pointer"
+          style={{
+            width: '0px',
+            height: '0px',
+            transform: 'translate(0px, 0px)',
+            visibility: 'hidden',
+          }}
+        >
+          <div className="pointer-events-none opacity-50">
+            <Piece piece={draggingPiece} />
+          </div>
+        </div>
       </div>
     </div>
   );
