@@ -16,7 +16,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const menuRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
-  const toggleMenu = (e: MouseEvent<HTMLButtonElement>): void => {
+  const toggleMenu = (e: any): void => {
     e.stopPropagation();
     setIsMenuOpen(!isMenuOpen);
   };
@@ -25,7 +25,7 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  const handleClickOutside = (event: MouseEvent<Document>): void => {
+  const handleClickOutside = (event: any): void => {
     if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
       setIsMenuOpen(false);
     }

@@ -146,7 +146,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
   }, [context?.isReset]);
 
   const handleMouseDown = (
-    e: MouseEvent | Touch,
+    e: any,
     square: SquareType,
     piece: PieceType
   ): void => {
@@ -206,7 +206,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
         setPrevSquarePromotion(currentSquare);
         setTimeout(() => {
           context.handlePromote(currentSquare, square, draggingPiece, board);
-        }, 290);
+        }, 190);
       } else {
         setTimeout(() => {
           setMovePosition({ x: 0, y: 0 });
@@ -223,7 +223,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
             context?.setChessResult('1/2-1/2');
           }
           context?.setFEN(game.fen());
-        }, 290);
+        }, 190);
       }
       setDraggingPiece('empty');
       setDragStartSquare('');
@@ -531,7 +531,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
   };
 
   const handleTouchStart = (
-    e: TouchEvent,
+    e: any,
     square: SquareType,
     piece: PieceType
   ): void => {
@@ -680,7 +680,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
                         className="card dim-square cursor-pointer"
                         style={{
                           transform: `translate(${movePosition.x}px, ${movePosition.y}px)`,
-                          transition: 'transform 0.3s ease-in-out',
+                          transition: 'transform 0.2s ease-in-out',
                         }}
                         onMouseUp={handleMouseUp}
                         onTouchEnd={handleTouchEnd}
