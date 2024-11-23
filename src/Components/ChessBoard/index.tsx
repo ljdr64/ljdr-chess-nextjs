@@ -96,15 +96,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
       document.addEventListener('touchmove', handleTouchMove as EventListener, {
         passive: false,
       });
-    } else {
-      document.removeEventListener(
-        'mousemove',
-        handleMouseMove as EventListener
-      );
-      document.removeEventListener(
-        'touchmove',
-        handleTouchMove as EventListener
-      );
     }
 
     return () => {
@@ -312,7 +303,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
     setHighlightedSquare('');
   };
 
-  const handleMouseMove = (e: MouseEvent | Touch): void => {
+  const handleMouseMove = (e: any): void => {
     const pieceArea = pieceRefs[currentSquare].current;
     if (pieceArea === null) {
       return;
@@ -539,7 +530,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
     handleMouseDown(event, square, piece);
   };
 
-  const handleTouchMove = (e: TouchEvent): void => {
+  const handleTouchMove = (e: any): void => {
     const event = e.touches[0];
     handleMouseMove(event);
   };
