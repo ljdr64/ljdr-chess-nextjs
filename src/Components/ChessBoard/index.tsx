@@ -424,7 +424,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ boardId, game }) => {
         const file = String.fromCharCode('a'.charCodeAt(0) + colIndex);
         const rank = 8 - rowIndex;
         let square = `${file}${rank}`;
-        const regex = /translate\((-?\d+)px, (-?\d+)px\)/;
+        const regex = /translate\((-?\d+(?:\.\d+)?)px, (-?\d+(?:\.\d+)?)px\)/;
         const position = pieceArea.style.transform.match(regex);
 
         if (position) {
